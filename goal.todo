@@ -1,0 +1,5 @@
+listEntries Function:
+    ☐ Change parameter structure to allow free input
+    ☐ New functions
+    ☐ Add a function to replace type checking inside each function
+    ☐ Implement cursors, in addition to cursor data in return data

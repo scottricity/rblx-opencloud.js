@@ -1,0 +1,31 @@
+{
+  "name": "rblx-opencloud",
+  "version": "1.0.0",
+  "description": "A module to interact with the Roblox OpenCloud API.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scottricity/rblx-opencloud.js.git"
+  },
+  "keywords": [
+    "roblox",
+    "api",
+    "opencloud",
+    "js",
+    "simple",
+    "esm"
+  ],
+  "author": "Jonathan Scott",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scottricity/rblx-opencloud.js/issues"
+  },
+  "homepage": "https://github.com/scottricity/rblx-opencloud.js#readme",
+  "dependencies": {
+    "got": "^12.5.2"
+  }
+}
