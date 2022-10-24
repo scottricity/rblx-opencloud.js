@@ -12,16 +12,42 @@ class DataStoreAPI {
     }
         /**
          * List DataStores in Universe
-         * @param {string} prefix Return only datastores with this prefix
-         * @param {number} limit Maximum number of items to return
-         * @param {string} cursor Provide to request the next set of data (See [Cursors](https://devforum.roblox.com/t/open-cloud-data-store-api-reference/1736533#heading--cursors))
-         * @param {()} onData The callback to receive data
+         * @param {object} query
+         * @param {string} query.prefix Return only data stores with this prefix
+         * @param {number} query.limit Maximum number of items to return
+         * @param {() => (object)} onData The callback to receive data
          */
-        listDataStores(prefix, limit, onData) {
-            if (typeof limit != "number") return new Error("Argument limit must be a number");
-            if (!(limit > 0 && limit < 101)) return new Error("Argument limit be within range 0 to 100");
+        listDataStores(query, onData) {
+            if (query.limit && typeof query.limit == "number"){
+                if (!(query.limit > 0 && query.limit < 101)) return new Error("Query limit be within range 0 to 100");
+            }
             if (typeof onData != "function") return new Error("Argument onData must be a function");
-            got(`${this.baseURL}${this.universeId}/standard-datastores?limit=${limit}&prefix=${prefix}`, {headers: {'x-api-key' : this.apiKey}}).then((resp => {
+            got(`${this.baseURL}${this.universeId}/standard-datastores?limit=${query.limit ? query.limit : 1}&prefix=${query.prefix ? query.prefix : ""}`, {headers: {'x-api-key' : this.apiKey}}).then((resp => {
+                if (resp){
+                    onData(JSON.parse(resp.body))
+                }
+            }))
+        }
+
+        /**
+         * Lua Equivalent [DataStore:ListKeysAsync](https://developer.roblox.com/en-us/api-reference/function/DataStore/ListKeysAsync)
+         * @param {string} datastoreName  Name of the data store
+         * @param {object} query Options for the query
+         * @param {string} query.scope Defaults to `global`
+         * @param {boolean} query.showAll If true, return keys from all scopes
+         * @param {string} query.prefix Return only keys with this prefix
+         * @param {number} query.limit Maximum number of items to return
+         * @param {() => (object)} onData The callback to receive data
+         */
+        listEntries(datastoreName, query, onData){
+            if (typeof datastoreName != "string") return new Error("Argument datastoreName must be a string");
+            if (query.limit && typeof query.limit == "number"){
+                if (!(query.limit > 0 && query.limit < 101)) return new Error("Query limit be within range 0 to 100");
+            }
+
+            if (typeof onData != "function") return new Error("Argument onData must be a function");
+
+            got(`${this.baseURL}${this.universeId}/standard-datastores/datastore/entries?limit=${query.limit ? query.limit : 1}&prefix=${query.prefix ? query.prefix : ""}&AllScopes=${query.showAll ? query.showAll : false}&datastoreName=${datastoreName}&scope=${query.scope ? query.scope : "global"}`, {headers: {'x-api-key' : this.apiKey}}).then((resp => {
                 if (resp){
                     onData(JSON.parse(resp.body))
                 }
@@ -30,26 +56,17 @@ class DataStoreAPI {
 
         /**
          * 
-         * @param {string} datastoreName  Name of the data store
-         * @param {string} scope Defaults to `global`.
-         * @param {boolean} allScopes If true, return keys from all scopes
-         * @param {string} prefix Return only datastores with this prefix
-         * @param {number} limit Maximum number of items to return
+         * @param {string} datastoreName Name of the data store
+         * @param {object} query Options for the query
+         * @param {string} query.scope Defaults to `global`
+         * @param {string} query.entryKey The key which identifies the entry
          * @param {() => (object)} onData The callback to receive data
          */
-        listEntries(datastoreName, options, onData){
-            if (typeof datastoreName != "string") return new Error("Argument datastoreName must be a string");
-            if (typeof scope != "string") return new Error("Argument scope must be a string");
-            if (typeof allScopes != "boolean") return new Error("Argument allScopes must be a boolean");
-            if (typeof prefix != "string") return new Error("Argument prefix must be a string");
-
-            if (typeof limit != "number") return new Error("Argument limit must be a number");
-            if (!(limit > 0 && limit < 101)) return new Error("Argument limit be within range 0 to 100");
+        getEntry(datastoreName, query, onData){
             if (typeof onData != "function") return new Error("Argument onData must be a function");
-
-            got(`${this.baseURL}${this.universeId}/standard-datastores/datastore/entries?limit=${limit}&prefix=${prefix}&AllScopes=${allScopes}&datastoreName=${datastoreName}&scope=${scope}`, {headers: {'x-api-key' : this.apiKey}}).then((resp => {
+            got(`${this.baseURL}${this.universeId}/standard-datastores/datastore/entries/entry?datastoreName=${datastoreName}&scope=${query.scope ? query.scope : "global"}&entryKey=${query.entryKey ? query.entryKey : ""}`, {headers: {'x-api-key' : this.apiKey}}).then((resp => {
                 if (resp){
-                    onData(JSON.parse(resp.body))
+                    onData(JSON.parse(JSON.parse(resp.body)))
                 }
             }))
         }
